@@ -21,6 +21,19 @@ export default function Login() {
 
     try {
       if (isLogin) {
+        // Validate login fields
+        if (!adminId.trim()) {
+          setError('Username is required');
+          setLoading(false);
+          return;
+        }
+
+        if (!password) {
+          setError('Password is required');
+          setLoading(false);
+          return;
+        }
+
         // Login request
         const response = await fetch('/api/auth/login', {
           method: 'POST',
@@ -33,10 +46,30 @@ export default function Login() {
           }),
         });
 
-        const data = await response.json();
-
+        // ✅ FIX: Handle empty response before parsing JSON
         if (!response.ok) {
-          setError(data.message || 'Login failed');
+          try {
+            const data = await response.json();
+            setError(data.message || `Login failed (${response.status})`);
+          } catch {
+            setError(`Login failed: ${response.status} ${response.statusText}`);
+          }
+          setLoading(false);
+          return;
+        }
+
+        let data;
+        try {
+          const text = await response.text();
+          if (!text) {
+            setError('Empty response from server. Please try again.');
+            setLoading(false);
+            return;
+          }
+          data = JSON.parse(text);
+        } catch (parseError) {
+          setError('Invalid response from server. Please try again.');
+          console.error('JSON Parse Error:', parseError);
           setLoading(false);
           return;
         }
@@ -53,6 +86,24 @@ export default function Login() {
         }
       } else {
         // Validate signup fields
+        if (!adminId.trim()) {
+          setError('Username is required');
+          setLoading(false);
+          return;
+        }
+
+        if (!name.trim()) {
+          setError('Full name is required');
+          setLoading(false);
+          return;
+        }
+
+        if (!email.trim()) {
+          setError('Email is required');
+          setLoading(false);
+          return;
+        }
+
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           setLoading(false);
@@ -80,10 +131,37 @@ export default function Login() {
           }),
         });
 
-        const data = await response.json();
-
+        // ✅ FIX: Handle empty response before parsing JSON
         if (!response.ok) {
-          setError(data.message || 'Registration failed');
+          try {
+            const data = await response.json();
+            setError(data.message || `Registration failed (${response.status})`);
+          } catch {
+            setError(`Registration failed: ${response.status} ${response.statusText}`);
+          }
+          setLoading(false);
+          return;
+        }
+
+        let data;
+        try {
+          const text = await response.text();
+          if (!text) {
+            setError('Empty response from server. Please try again.');
+            setLoading(false);
+            return;
+          }
+          data = JSON.parse(text);
+        } catch (parseError) {
+          setError('Invalid response from server. Please try again.');
+          console.error('JSON Parse Error:', parseError);
+          setLoading(false);
+          return;
+        }
+
+        // ✅ Verify registration response
+        if (!data || !data.success) {
+          setError(data?.message || 'Registration failed. Please try again.');
           setLoading(false);
           return;
         }
