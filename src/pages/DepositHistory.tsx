@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../styles/DepositHistory.css';
+import DepositRequest from './DepositRequest';
 
 interface DepositRequest {
   id: number;
@@ -98,6 +99,9 @@ export default function DepositHistory() {
         <h2>My Deposit Requests</h2>
         <p>Track your deposit requests and their status</p>
       </div>
+
+      {/* Deposit Request Form */}
+      <DepositRequest />
 
       <div className="filter-section">
         <button 

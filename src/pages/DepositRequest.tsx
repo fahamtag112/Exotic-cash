@@ -1,17 +1,34 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/DepositRequest.css';
 import { CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
-interface DepositRequestProps {
-  userId?: number;
+interface User {
+  id: number;
+  admin_id: string;
+  role: string;
+  full_name: string;
+  email: string;
 }
 
-export default function DepositRequest({ userId }: DepositRequestProps) {
+export default function DepositRequest() {
+  const [user, setUser] = useState<User | null>(null);
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Get user from localStorage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +38,7 @@ export default function DepositRequest({ userId }: DepositRequestProps) {
       return;
     }
 
-    if (!userId) {
+    if (!user || !user.id) {
       setMessage({ type: 'error', text: 'User not authenticated' });
       return;
     }
@@ -36,7 +53,7 @@ export default function DepositRequest({ userId }: DepositRequestProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
+          userId: user.id,
           amount: parseFloat(amount),
           currency,
         }),

@@ -17,6 +17,7 @@ import UserSettings from './pages/UserSettings'
 import UserSupport from './pages/UserSupport'
 import InvestmentPlans from './pages/InvestmentPlans'
 import DepositHistory from './pages/DepositHistory'
+import DepositRequest from './pages/DepositRequest'
 import UserInvestments from './pages/UserInvestments'
 import NotificationCenter from './pages/NotificationCenter'
 import AdminPendingRequests from './pages/AdminPendingRequests'
@@ -76,6 +77,7 @@ function App() {
         <Route path="/user-support" element={user && user.role === 'user' ? <UserSupport /> : <Navigate to="/" />} />
         <Route path="/investment-plans" element={user && user.role === 'user' ? <InvestmentPlans /> : <Navigate to="/" />} />
         <Route path="/my-deposits" element={user && user.role === 'user' ? <DepositHistory /> : <Navigate to="/" />} />
+        <Route path="/deposit-request" element={user && user.role === 'user' ? <DepositRequest /> : <Navigate to="/" />} />
         <Route path="/my-investments" element={user && user.role === 'user' ? <UserInvestments /> : <Navigate to="/" />} />
         <Route path="/notifications" element={user ? <NotificationCenter /> : <Navigate to="/" />} />
       </Routes>

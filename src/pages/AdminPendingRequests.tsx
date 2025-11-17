@@ -161,7 +161,10 @@ export default function AdminPendingRequests() {
     );
   }
 
-  const pendingRequests = requests.filter(req => req.status === 'pending');
+  // Add null/undefined check before filtering
+  const pendingRequests = requests && Array.isArray(requests) 
+    ? requests.filter(req => req.status === 'pending')
+    : [];
 
   return (
     <div className="admin-pending-container">
