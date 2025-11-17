@@ -88,40 +88,26 @@ export default function AdminDashboard() {
         setUser(meData.user);
       }
 
-      // Generate realistic stats based on timestamp
-      const timestamp = Date.now();
-      const randomFactor = Math.sin(timestamp / 10000) * 100;
-      
+      // Initialize with empty/default data (no mock data)
       setStats({
-        totalUsers: Math.floor(1200 + randomFactor),
-        totalTransactions: Math.floor(8400 + randomFactor * 5),
-        totalRevenue: `$${(120000 + randomFactor * 500).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
-        activeUsers: Math.floor(850 + randomFactor * 2),
+        totalUsers: 0,
+        totalTransactions: 0,
+        totalRevenue: '$0',
+        activeUsers: 0,
       });
 
-      // Generate realistic activities
-      const mockActivities: Activity[] = [
-        { id: 1, user: 'John Doe', action: 'Login', time: 'Just now', status: 'success' },
-        { id: 2, user: 'Jane Smith', action: 'Transaction', time: '5 mins ago', status: 'success' },
-        { id: 3, user: 'Admin User', action: 'Settings Update', time: '10 mins ago', status: 'success' },
-        { id: 4, user: 'Bob Wilson', action: 'Account Created', time: '15 mins ago', status: 'pending' },
-      ];
-      setRecentActivities(mockActivities);
+      // No mock activities
+      setRecentActivities([]);
     } catch (err) {
       console.error('Error fetching data:', err);
-      // Fall back to default mock data
+      // Initialize with empty data on error
       setStats({
-        totalUsers: 1250,
-        totalTransactions: 8456,
-        totalRevenue: '$125,450',
-        activeUsers: 892,
+        totalUsers: 0,
+        totalTransactions: 0,
+        totalRevenue: '$0',
+        activeUsers: 0,
       });
-      setRecentActivities([
-        { id: 1, user: 'John Doe', action: 'Login', time: '2 mins ago', status: 'success' },
-        { id: 2, user: 'Jane Smith', action: 'Transaction', time: '5 mins ago', status: 'success' },
-        { id: 3, user: 'Admin User', action: 'Settings Update', time: '10 mins ago', status: 'success' },
-        { id: 4, user: 'Bob Wilson', action: 'Account Created', time: '15 mins ago', status: 'pending' },
-      ]);
+      setRecentActivities([]);
     }
   };
 
@@ -214,30 +200,42 @@ export default function AdminDashboard() {
           <section className="activities-section">
             <h2>Recent Activities</h2>
             <div className="activities-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentActivities.map((activity) => (
-                    <tr key={activity.id}>
-                      <td>{activity.user}</td>
-                      <td>{activity.action}</td>
-                      <td>{activity.time}</td>
-                      <td>
-                        <span className={`status-badge ${activity.status}`}>
-                          {activity.status}
-                        </span>
-                      </td>
+              {recentActivities.length === 0 ? (
+                <div style={{ 
+                  padding: '40px 20px', 
+                  textAlign: 'center', 
+                  color: 'var(--text-secondary)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderRadius: '8px'
+                }}>
+                  <p>No activities recorded yet</p>
+                </div>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Action</th>
+                      <th>Time</th>
+                      <th>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recentActivities.map((activity) => (
+                      <tr key={activity.id}>
+                        <td>{activity.user}</td>
+                        <td>{activity.action}</td>
+                        <td>{activity.time}</td>
+                        <td>
+                          <span className={`status-badge ${activity.status}`}>
+                            {activity.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </section>
 

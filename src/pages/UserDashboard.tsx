@@ -84,36 +84,26 @@ export default function UserDashboard() {
         setUser(meData.user);
       }
 
-      // Generate realistic mock data based on user ID
-      const userId = user?.id || 1;
-      const balance = (1000 + (userId * 523)) % 10000;
-      const transactionCount = 50 + (userId * 7);
-      const daysActive = 365 + (userId * 10);
-      
+      // Initialize with empty/default data (no mock data)
       setUserStats({
-        balance: `$${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-        transactions: transactionCount,
-        accountAge: `${Math.floor(daysActive / 365)} years`,
-        lastTransaction: 'Just now',
+        balance: '$0.00',
+        transactions: 0,
+        accountAge: 'N/A',
+        lastTransaction: 'N/A',
       });
 
-      // Generate realistic transactions
-      const mockTransactions: Transaction[] = [
-        { id: 1, type: 'Deposit', amount: '+$500', date: new Date(Date.now() - 3600000).toLocaleDateString(), status: 'completed' },
-        { id: 2, type: 'Transfer', amount: '-$250', date: new Date(Date.now() - 86400000).toLocaleDateString(), status: 'completed' },
-        { id: 3, type: 'Withdrawal', amount: '-$1000', date: new Date(Date.now() - 172800000).toLocaleDateString(), status: 'completed' },
-        { id: 4, type: 'Deposit', amount: '+$2000', date: new Date(Date.now() - 259200000).toLocaleDateString(), status: 'completed' },
-      ];
-      setTransactions(mockTransactions);
+      // No mock transactions
+      setTransactions([]);
     } catch (err) {
       console.error('Error fetching data:', err);
-      // Fall back to default mock data if API fails
-      setTransactions([
-        { id: 1, type: 'Deposit', amount: '+$500', date: 'Nov 14, 2025', status: 'completed' },
-        { id: 2, type: 'Transfer', amount: '-$250', date: 'Nov 13, 2025', status: 'completed' },
-        { id: 3, type: 'Withdrawal', amount: '-$1000', date: 'Nov 12, 2025', status: 'completed' },
-        { id: 4, type: 'Deposit', amount: '+$2000', date: 'Nov 10, 2025', status: 'completed' },
-      ]);
+      // Initialize with empty data on error
+      setUserStats({
+        balance: '$0.00',
+        transactions: 0,
+        accountAge: 'N/A',
+        lastTransaction: 'N/A',
+      });
+      setTransactions([]);
     }
   };
 
@@ -211,34 +201,46 @@ export default function UserDashboard() {
               <a href="#" className="view-all">View All →</a>
             </div>
             <div className="transactions-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td>
-                        <span className="transaction-type">{transaction.type}</span>
-                      </td>
-                      <td>
-                        <span className={`transaction-amount ${transaction.amount.startsWith('+') ? 'positive' : 'negative'}`}>
-                          {transaction.amount}
-                        </span>
-                      </td>
-                      <td>{transaction.date}</td>
-                      <td>
-                        <span className="transaction-status completed">{transaction.status}</span>
-                      </td>
+              {transactions.length === 0 ? (
+                <div style={{ 
+                  padding: '40px 20px', 
+                  textAlign: 'center', 
+                  color: 'var(--text-secondary)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  borderRadius: '8px'
+                }}>
+                  <p>No transactions yet</p>
+                </div>
+              ) : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Date</th>
+                      <th>Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {transactions.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td>
+                          <span className="transaction-type">{transaction.type}</span>
+                        </td>
+                        <td>
+                          <span className={`transaction-amount ${transaction.amount.startsWith('+') ? 'positive' : 'negative'}`}>
+                            {transaction.amount}
+                          </span>
+                        </td>
+                        <td>{transaction.date}</td>
+                        <td>
+                          <span className="transaction-status completed">{transaction.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </section>
 
