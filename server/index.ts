@@ -84,6 +84,24 @@ app.get('/api/pool-status', (req: Request, res: Response) => {
   });
 });
 
+// ✅ Server stats endpoint
+app.get('/api/stats', (req: Request, res: Response) => {
+  const uptime = process.uptime();
+  const memUsage = process.memoryUsage();
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      uptime: `${Math.floor(uptime / 60)} minutes`,
+      memory: {
+        heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)} MB`,
+        heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)} MB`
+      },
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
 // ✅ Error handling middleware
 app.use((err: any, req: Request, res: Response, next: any) => {
   console.error('❌ Unhandled error:', {
@@ -115,22 +133,36 @@ const server = app.listen(PORT, async () => {
   console.log(`📊 Database: ${process.env.DB_NAME || 'exotic_cash_db'}`);
   console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
   console.log(`📈 Pool Status: http://localhost:${PORT}/api/pool-status`);
+  console.log(`💾 Server Stats: http://localhost:${PORT}/api/stats`);
+  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   // ✅ Verify database connection on startup
   const isHealthy = await checkDatabaseHealth();
   if (!isHealthy) {
     console.error('⚠️  WARNING: Database connection failed on startup!');
     console.error('⚠️  Server is running but API calls may fail');
+    console.error('⚠️  Please check:');
+    console.error('   1. Is PostgreSQL running? (sudo systemctl status postgresql)');
+    console.error('   2. Database exists? (createdb exotic_cash_db)');
+    console.error('   3. Credentials correct in .env file?');
+  } else {
+    console.log('✅ Database connection verified successfully!');
   }
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 });
 
-// ✅ Graceful shutdown
+// ✅ Graceful shutdown with connection cleanup
 process.on('SIGTERM', () => {
   console.log('📌 SIGTERM signal received: closing HTTP server');
   server.close(async () => {
     console.log('🛑 HTTP server closed');
-    await pool.end();
-    console.log('🛑 Database connections closed');
+    try {
+      await pool.end();
+      console.log('🛑 Database connections closed');
+    } catch (err) {
+      console.error('❌ Error closing pool:', err);
+    }
     process.exit(0);
   });
 });
@@ -139,8 +171,12 @@ process.on('SIGINT', () => {
   console.log('📌 SIGINT signal received: closing HTTP server');
   server.close(async () => {
     console.log('🛑 HTTP server closed');
-    await pool.end();
-    console.log('🛑 Database connections closed');
+    try {
+      await pool.end();
+      console.log('🛑 Database connections closed');
+    } catch (err) {
+      console.error('❌ Error closing pool:', err);
+    }
     process.exit(0);
   });
 });
@@ -163,4 +199,5 @@ process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
     timestamp: new Date().toISOString()
   });
 });
+
 

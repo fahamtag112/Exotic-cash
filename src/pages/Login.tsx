@@ -245,14 +245,6 @@ export default function Login() {
               </p>
             </div>
 
-            {isLogin && (
-              <div className="demo-credentials">
-                <p><strong>Demo Credentials:</strong></p>
-                <p>Username: <code>Admin112</code></p>
-                <p>Password: <code>Admin@112</code></p>
-              </div>
-            )}
-
             {!isLogin && (
               <div className="security-features">
                 <p><strong>Why sign up with us?</strong></p>
